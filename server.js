@@ -21,6 +21,7 @@ function base64_encode(file) {
 }
 
 app.post("/base64", function (request, response) {
+  console.log(`Creating font for ${request.body.glyphs.length} glyphs: ${request.body.glyphs}`)
   // Setup
   const remotePath = request.body.ttfURL
   // const remotePath = 'https://wtfismyip.com/text'
@@ -28,8 +29,6 @@ app.post("/base64", function (request, response) {
   const tmpPath = `/tmp/${id}.ttf`
   const builtTTFPath = `/tmp/built/${id}.ttf`
   const builtWOFFPath = `/tmp/built/${id}.woff`
-  console.log(builtTTFPath)
-  console.log(builtWOFFPath)
 
   // Hacked callback hell (at least it'll perform well...)
   got(remotePath, {encoding: 'binary'}).then(resp => {
@@ -42,7 +41,7 @@ app.post("/base64", function (request, response) {
       const fm = new Fontmin()
         .src(tmpPath)
         // Strip glyphs but keep hint info
-        .use(Fontmin.glyph({ text: request.glyphs, hinting: true }))
+        .use(Fontmin.glyph({ text: request.body.glyphs, hinting: true }))
         // Convert to deflated woff
         .use(Fontmin.ttf2woff({ deflate: true}))
         .dest('/tmp/built')
